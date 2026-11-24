@@ -34,7 +34,24 @@ from pathlib import Path
 EMOJI = "\U0001F5FB"
 
 
+def validate(text: str) -> None:
+    """Refuse to write anything the gate would reject.
+
+    The gate takes UTF-8 text of 1 to 8 characters, not only white space;
+    the judge's first criterion is exactly one emoji, no words. A program
+    that silently wrote a broken entry would lose before it was judged,
+    so check the text here and fail loudly instead.
+    """
+    if not 1 <= len(text) <= 8:
+        raise ValueError(f"entry must be 1-8 characters, got {len(text)}")
+    if not text.strip():
+        raise ValueError("entry must not be only white space")
+    if len(text) != 1:
+        raise ValueError(f"entry must be exactly one emoji, got {len(text)} characters")
+
+
 def main() -> None:
+    validate(EMOJI)
     out_dir = Path(os.environ.get("OUTPUT_DIR", "/output"))
     out_dir.mkdir(parents=True, exist_ok=True)
     target = out_dir / "entry.txt"
